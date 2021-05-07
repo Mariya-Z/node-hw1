@@ -1,6 +1,9 @@
 import Joi from 'joi';
 import { v4 as uuid } from 'uuid';
 
+import { Users } from '../db/models/users';
+
+
 let users = [
   {
     id: '1',
@@ -44,6 +47,19 @@ export const getUsers = (req, res) => {
     searchUsers(req, res);
   }
   res.send(users.filter((user) => !user.isDeleted));
+}
+
+export const create = (req, res) => {
+  return Users
+    .create({
+      // title: req.body.title,
+      login: req.body.login,
+      password: req.body.password,
+      age: req.body.age,
+      // isDeleted: DataTypes.BOOLEAN
+    })
+    .then(users => res.status(201).send(users))
+    .catch(error => res.status(400).send(error));
 }
 
 export const createUser = (req, res) => {
