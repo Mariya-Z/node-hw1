@@ -18,10 +18,17 @@ export const getUserById = (req, res) => {
   return usersServiceInstance.getOneById(id)
     .then(user => {
       if (user) {
-        res.status(200).json(user);
+        res.status(200).json({
+          res: true,
+          user: {
+            id: user.id,
+            login: user.login,
+            age: user.age,
+          },
+        });
       } else {
         res.status(404).json({
-          error: `User with id ${id} is not found`,
+          res: false,
         })
       }
     })
@@ -73,8 +80,7 @@ export const updateUser = (req, res) => {
         return res.status(400).json({res: false});
       }
     })
-    .catch(error => res.status(500).json(error))
-
+    .catch(error => res.status(500).json(error));
 }
 
 export const searchUsers = (req, res) => {

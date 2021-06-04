@@ -1,5 +1,6 @@
 import pkg from 'sequelize';
-import { UsersInitialize } from './users.js';
+import { UsersAssociations, UsersInitialize } from './users.js';
+import { GroupInitialize, GroupsAssociations } from './groups.js';
 import enVariables from '../config/config.json';
 
 const { Sequelize } = pkg;
@@ -17,10 +18,13 @@ export async function initDB() {
     sequelize = new Sequelize(config.database, config.username, config.password, config);
   }
 
-  [UsersInitialize].forEach((modelInitialize) => {
+  [UsersInitialize, GroupInitialize].forEach((modelInitialize) => {
     const model = modelInitialize(sequelize);
     db[model.name] = model;
-  })
+  });
+
+  GroupsAssociations();
+  UsersAssociations();
 
   Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
