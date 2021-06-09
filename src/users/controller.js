@@ -1,19 +1,28 @@
 import { Users } from '../db/models/users.js';
+import { controllerErrorLogger } from '../utils';
 import { UsersService } from './service.js';
 
 const usersServiceInstance = new UsersService(Users);
 
-export const getUsers = (req, res) => {
+export const getUsers = (req, res, next) => {
   if (Object.keys(req.query).length) {
-    return searchUsers(req, res);
+    return searchUsers(req, res, next);
   }
 
   return usersServiceInstance.getAll()
     .then(users => res.status(200).json(users))
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'getAll',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const getUserById = (req, res) => {
+export const getUserById = (req, res, next) => {
   const { id } = req.params;
   return usersServiceInstance.getOneById(id)
     .then(user => {
@@ -27,15 +36,24 @@ export const getUserById = (req, res) => {
           },
         });
       } else {
+        // TODO - controllerErrorLogger?
         res.status(404).json({
           res: false,
         })
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'getUserById',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const createUser = (req, res) => {
+export const createUser = (req, res, next) => {
   const user = { ...req.body };
   return usersServiceInstance.create(user)
     .then(user => res.status(201).json({
@@ -43,10 +61,19 @@ export const createUser = (req, res) => {
       login: user.login,
       age: user.age,
     }))
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'createUser',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 };
 
-export const deleteUser = (req, res) => {
+// TODO - what happens whit UserGroup table on delete?
+export const deleteUser = (req, res, next) => {
   const { id } = req.params;
   return usersServiceInstance.delete(id)
     .then(result => {
@@ -58,10 +85,18 @@ export const deleteUser = (req, res) => {
         return res.status(400).json({res: false});
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'deleteUser',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const updateUser = (req, res) => {
+export const updateUser = (req, res, next) => {
   const user = { ...req.body };
   const { id } = req.params;
   return usersServiceInstance.update(user, id)
@@ -80,12 +115,28 @@ export const updateUser = (req, res) => {
         return res.status(400).json({res: false});
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'updateUser',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const searchUsers = (req, res) => {
+export const searchUsers = (req, res, next) => {
   const { start_with, limit } = req.query;
   return usersServiceInstance.search(start_with, limit)
     .then(data => res.status(200).json(data))
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'UserController',
+        methodName: 'searchUsers',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }

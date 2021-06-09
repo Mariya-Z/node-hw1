@@ -1,16 +1,25 @@
 import { Groups } from '../db/models/groups.js'
 import { db } from '../db/models/index.js';
+import { controllerErrorLogger } from '../utils';
 import { GroupsService } from './service.js';
 
 const groupsServiceInstance = new GroupsService(Groups);
 
-export const getGroups = (req, res) => {
+export const getGroups = (req, res, next) => {
   return groupsServiceInstance.getAll()
     .then(users => res.status(200).json(users))
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'getGroups',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const getGroupById = (req, res) => {
+export const getGroupById = (req, res, next) => {
   const { id } = req.params;
   return groupsServiceInstance.getOneById(id)
     .then(group => {
@@ -29,10 +38,18 @@ export const getGroupById = (req, res) => {
         })
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'getGroupById',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const createGroup = (req, res) => {
+export const createGroup = (req, res, next) => {
   const group = { ...req.body };
   return groupsServiceInstance.create(group)
     .then(group => res.status(201).json({
@@ -40,10 +57,18 @@ export const createGroup = (req, res) => {
       name: group.name,
       permissions: group.permissions,
     }))
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'createGroup',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const updateGroup = (req, res) => {
+export const updateGroup = (req, res, next) => {
   const group = { ...req.body };
   const { id } = req.params;
   return groupsServiceInstance.update(group, id)
@@ -61,10 +86,18 @@ export const updateGroup = (req, res) => {
         return res.status(400).json({res: false});
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'updateGroup',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const deleteGroup = (req, res) => {
+export const deleteGroup = (req, res, next) => {
   const { id } = req.params;
   return groupsServiceInstance.delete(id)
     .then(result => {
@@ -76,19 +109,35 @@ export const deleteGroup = (req, res) => {
         return res.status(400).json({res: false});
       }
     })
-    .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'deleteGroup',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }
 
-export const addUsersToGroup = async (req, res) => {
+export const addUsersToGroup = (req, res, next) => {
   const { groupId } = req.params;
   const { userIds } = { ...req.body };
 
-  db.sequelize.transaction
-  (t => groupsServiceInstance.addTo(groupId, userIds, t))
-  .then(_ => {
-    return res.status(200).json({
-      res: true,
+  // TODO - handle already existed couples
+  db.sequelize.transaction(t => groupsServiceInstance.addTo(groupId, userIds, t))
+    .then(_ => {
+      return res.status(200).json({
+        res: true,
+      })
     })
-  })
-  .catch(error => res.status(500).json(error));
+    .catch(error => {
+      controllerErrorLogger({
+        controllerName: 'GroupController',
+        methodName: 'addUsersToGroup',
+        args: req.query,
+        error: error,
+      });
+      next(error);
+    });
 }

@@ -7,8 +7,6 @@ export class UsersService {
     this.model = model;
   }
 
-  //TODO - add global error handler
-
   getAll = () => {
     // TODO - add param isDeleted
     return this.model.findAll({
