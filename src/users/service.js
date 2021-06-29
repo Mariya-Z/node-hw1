@@ -26,6 +26,16 @@ export class UsersService {
     });
   }
 
+  getOneByCredentials = (login, password) => {
+    return this.model.findOne({
+      attributes: ['login', 'age', 'id'],
+      where: {
+        login: login,
+        password: password,
+      }
+    });
+  }
+
   create = (entity) => {
     return this.model.create({
       id: uuid(),

@@ -28,7 +28,7 @@ export const getUserById = (req, res, next) => {
     .then(user => {
       if (user) {
         res.status(200).json({
-          res: true,
+          success: true,
           user: {
             id: user.id,
             login: user.login,
@@ -36,9 +36,17 @@ export const getUserById = (req, res, next) => {
           },
         });
       } else {
-        // TODO - controllerErrorLogger?
+        controllerErrorLogger({
+          controllerName: 'UserController',
+          methodName: 'getUserById',
+          args: req.query,
+          error: {
+            message: `No user with id ${id}`,
+          }
+        });
         res.status(404).json({
-          res: false,
+          success: false,
+          message: `No user with id ${id}`,
         })
       }
     })
@@ -79,10 +87,13 @@ export const deleteUser = (req, res, next) => {
     .then(result => {
       if (result[0] === 1) {
         return  res.status(200).json({
-          res: true,
+          success: true,
         })
       } else {
-        return res.status(400).json({res: false});
+        return res.status(400).json({
+          success: false,
+          message: `No user with id ${id}`,
+        });
       }
     })
     .catch(error => {
@@ -103,7 +114,7 @@ export const updateUser = (req, res, next) => {
     .then(result => {
       if (result[0] === 1) {
         return  res.status(200).json({
-          res: true,
+          success: true,
           user: {
             id: id,
             login: user.login,
@@ -111,8 +122,10 @@ export const updateUser = (req, res, next) => {
           }
         })
       } else {
-        // TODO - 400 OR 404
-        return res.status(400).json({res: false});
+        return res.status(400).json({
+          success: false,
+          message: `No user with id ${id}`,
+        });
       }
     })
     .catch(error => {

@@ -8,6 +8,6 @@ export const controllerErrorLogger = ({controllerName, methodName, args, error})
     methodName,
     args,
     error.message,
-    error.stack
+    error.stack ? error.stack : ''
   )
 }

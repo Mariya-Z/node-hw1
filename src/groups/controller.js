@@ -25,7 +25,7 @@ export const getGroupById = (req, res, next) => {
     .then(group => {
       if (group) {
         res.status(200).json({
-          res: true,
+          success: true,
           group: {
             id: group.id,
             name: group.name,
@@ -33,9 +33,10 @@ export const getGroupById = (req, res, next) => {
           },
         });
       } else {
-        res.status(404).json({
-          res: false,
-        })
+        res.status(400).json({
+          success: false,
+          message: `No group with id ${id}`,
+        });
       }
     })
     .catch(error => {
@@ -75,7 +76,7 @@ export const updateGroup = (req, res, next) => {
     .then(result => {
       if (result[0] === 1) {
         return res.status(200).json({
-          res: true,
+          success: true,
           group: {
             id: id,
             name: group.name,
@@ -83,7 +84,10 @@ export const updateGroup = (req, res, next) => {
           }
         })
       } else {
-        return res.status(400).json({res: false});
+        return res.status(400).json({
+          success: false,
+          message: `No group with id ${id}`,
+        });
       }
     })
     .catch(error => {
@@ -103,10 +107,13 @@ export const deleteGroup = (req, res, next) => {
     .then(result => {
       if (result) {
         return  res.status(200).json({
-          res: true,
+          success: true,
         })
       } else {
-        return res.status(400).json({res: false});
+        return res.status(400).json({
+          success: false,
+          message: `No group with id ${id}`,
+        });
       }
     })
     .catch(error => {
@@ -128,7 +135,7 @@ export const addUsersToGroup = (req, res, next) => {
   db.sequelize.transaction(t => groupsServiceInstance.addTo(groupId, userIds, t))
     .then(_ => {
       return res.status(200).json({
-        res: true,
+        success: true,
       })
     })
     .catch(error => {

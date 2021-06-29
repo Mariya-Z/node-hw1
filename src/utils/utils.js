@@ -16,6 +16,28 @@ export const permissionSchema = Joi.object().keys({
   ).required()
 });
 
+ const uuidSchema = Joi.string().uuid().required();
+
+export const validateRequest = () => {
+  return (req, res, next) => {
+    const { error } = uuidSchema.validate(req.params.id, {
+      abortEarly: false,
+      allowUnknown: false
+    });
+
+    if (error) {
+      res.status(404).json({
+        status: "failed",
+        errors: [{
+          message: 'Invalid id'
+        }]
+      });
+    } else {
+      next();
+    }
+  }
+}
+
 const  errorResponse = (schemaErrors) => {
   const errors = schemaErrors.map((error) => {
     let { path, message } = error;
