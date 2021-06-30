@@ -2,86 +2,86 @@ import { Users } from '../db/models/users.js';
 import { controllerErrorLogger } from '../utils';
 import { UsersService } from './service.js';
 
-const usersServiceInstance = new UsersService(Users);
+export const usersServiceInstance = new UsersService(Users);
 
-export const getUsers = (req, res, next) => {
-  if (Object.keys(req.query).length) {
-    return searchUsers(req, res, next);
-  }
-
-  return usersServiceInstance.getAll()
-    .then(users => res.status(200).json(users))
-    .catch(error => {
-      controllerErrorLogger({
-        controllerName: 'UserController',
-        methodName: 'getAll',
-        args: req.query,
-        error: error,
-      });
-      next(error);
-    });
-}
-
-export const getUserById = (req, res, next) => {
-  const { id } = req.params;
-  return usersServiceInstance.getOneById(id)
-    .then(user => {
-      if (user) {
-        res.status(200).json({
-          success: true,
-          user: {
-            id: user.id,
-            login: user.login,
-            age: user.age,
-          },
+export class UsersController {
+  getUsers = (req, res, next) => {
+    if (Object.keys(req.query).length) {
+      return this.searchUsers(req, res, next);
+    };
+  
+    return usersServiceInstance.getAll()
+      .then(users => res.status(200).json(users))
+      .catch(error => {
+        controllerErrorLogger({
+          controllerName: 'UserController',
+          methodName: 'getAll',
+          args: req.query,
+          error: error,
         });
-      } else {
+        next(error);
+      });
+  };
+
+  getUserById = (req, res, next) => {
+    const { id } = req.params;
+    return usersServiceInstance.getOneById(id)
+      .then(user => {
+        if (user) {
+          res.status(200).json({
+            success: true,
+            user: {
+              id: user.id,
+              login: user.login,
+              age: user.age,
+            },
+          });
+        } else {
+          controllerErrorLogger({
+            controllerName: 'UserController',
+            methodName: 'getUserById',
+            args: req.query,
+            error: {
+              message: `No user with id ${id}`,
+            }
+          });
+          res.status(400).json({
+            success: false,
+            message: `No user with id ${id}`,
+          })
+        }
+      })
+      .catch(error => {
         controllerErrorLogger({
           controllerName: 'UserController',
           methodName: 'getUserById',
           args: req.query,
-          error: {
-            message: `No user with id ${id}`,
-          }
+          error: error,
         });
-        res.status(404).json({
-          success: false,
-          message: `No user with id ${id}`,
-        })
-      }
-    })
-    .catch(error => {
-      controllerErrorLogger({
-        controllerName: 'UserController',
-        methodName: 'getUserById',
-        args: req.query,
-        error: error,
+        next(error);
       });
-      next(error);
-    });
-}
+  };
 
-export const createUser = (req, res, next) => {
-  const user = { ...req.body };
-  return usersServiceInstance.create(user)
-    .then(user => res.status(201).json({
-      id: user.id,
-      login: user.login,
-      age: user.age,
-    }))
-    .catch(error => {
-      controllerErrorLogger({
-        controllerName: 'UserController',
-        methodName: 'createUser',
-        args: req.query,
-        error: error,
+  createUser = (req, res, next) => {
+    const user = { ...req.body };
+    return usersServiceInstance.create(user)
+      .then(user => res.status(201).json({
+        id: user.id,
+        login: user.login,
+        age: user.age,
+      }))
+      .catch(error => {
+        controllerErrorLogger({
+          controllerName: 'UserController',
+          methodName: 'createUser',
+          args: req.query,
+          error: error,
+        });
+        next(error);
       });
-      next(error);
-    });
-};
+  };
 
-// TODO - what happens whit UserGroup table on delete?
-export const deleteUser = (req, res, next) => {
+  deleteUser = (req, res, next) => {
   const { id } = req.params;
   return usersServiceInstance.delete(id)
     .then(result => {
@@ -105,9 +105,9 @@ export const deleteUser = (req, res, next) => {
       });
       next(error);
     });
-}
+  };
 
-export const updateUser = (req, res, next) => {
+  updateUser = (req, res, next) => {
   const user = { ...req.body };
   const { id } = req.params;
   return usersServiceInstance.update(user, id)
@@ -137,9 +137,9 @@ export const updateUser = (req, res, next) => {
       });
       next(error);
     });
-}
+  };
 
-export const searchUsers = (req, res, next) => {
+  searchUsers = (req, res, next) => {
   const { start_with, limit } = req.query;
   return usersServiceInstance.search(start_with, limit)
     .then(data => res.status(200).json(data))
@@ -152,4 +152,5 @@ export const searchUsers = (req, res, next) => {
       });
       next(error);
     });
+  };
 }

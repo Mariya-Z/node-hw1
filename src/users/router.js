@@ -1,14 +1,15 @@
 import express from 'express';
-import { createUser, getUsers, deleteUser, getUserById, updateUser } from './controller.js';
+import { UsersController } from './controller.js';
 import { validateSchema, querySchema, validateRequest } from '../utils/utils.js';
 
 const usersRouter = express.Router();
+const usersController = new UsersController();
 
 usersRouter
-  .get('/', getUsers)
-  .post('/', validateSchema(querySchema), createUser)
-  .get('/:id', validateRequest(), getUserById)
-  .delete('/:id', validateRequest(), deleteUser)
-  .put('/:id', validateRequest(), validateSchema(querySchema), updateUser);
+  .get('/', usersController.getUsers)
+  .post('/', validateSchema(querySchema), usersController.createUser)
+  .get('/:id', validateRequest(), usersController.getUserById)
+  .delete('/:id', validateRequest(), usersController.deleteUser)
+  .put('/:id', validateRequest(), validateSchema(querySchema), usersController.updateUser);
 
 export default usersRouter;

@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "lint": "eslint **/*.js  --ignore-pattern node_modules/",
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize db:migrate",
@@ -30,7 +30,9 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@jest-mock/express": "^1.4.2",
     "eslint": "^7.23.0",
+    "jest": "^27.0.6",
     "nodemon": "^2.0.7",
     "sequelize-cli": "^6.2.0"
   }
